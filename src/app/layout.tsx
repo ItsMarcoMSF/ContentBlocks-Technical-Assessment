@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import {
   ClerkProvider,
-} from '@clerk/nextjs'
+} from '@clerk/nextjs';
+import { ChakraUIProviders } from "./providers";
+import { fonts } from './fonts'
+
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -19,9 +22,11 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang='en'>
+      <html lang='en' className={fonts.rubik.variable}>
         <body>
-          {children}
+          <ChakraUIProviders>
+            {children}
+          </ChakraUIProviders>
         </body>
       </html>
     </ClerkProvider>
