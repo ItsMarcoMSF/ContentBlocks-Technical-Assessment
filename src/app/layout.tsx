@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import {
   ClerkProvider,
 } from '@clerk/nextjs';
-import { ChakraUIProviders } from "./providers";
+import { Providers } from "./providers";
 import { fonts } from './fonts'
 
 import "./globals.css";
@@ -21,12 +21,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       <html lang='en' className={fonts.rubik.variable}>
         <body>
-          <ChakraUIProviders>
+          <Providers>
             {children}
-          </ChakraUIProviders>
+          </Providers>
         </body>
       </html>
     </ClerkProvider>
