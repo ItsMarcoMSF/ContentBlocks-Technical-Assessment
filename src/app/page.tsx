@@ -12,12 +12,17 @@ export default function Home() {
       style={{ backgroundImage: `url("${backgroundImageURL}")`, backgroundSize: 'cover', }}
     >
       <SignedOut>
-        User is not signed in
-        <SignInButton />
+        <div className="flex gap-4">
+          User is not signed in
+          <SignInButton/>
+        </div>
+        
       </SignedOut>
       <SignedIn>
-        User is signed in
-        <UserButton />
+        <div className="flex gap-4">
+            User is signed in
+            <UserButton />
+        </div>
       </SignedIn>
     </main>
   );

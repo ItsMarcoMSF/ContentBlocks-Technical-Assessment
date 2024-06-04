@@ -7,26 +7,29 @@ import { useRouter } from "next/navigation";
 import { Input, Button, Alert, FormControl, FormLabel, FormErrorMessage, Text, InputRightElement, InputGroup } from "@chakra-ui/react";
 
 export default function Page() {
+    // nextjs router
     const router = useRouter();
 
+    // form state
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [passwordConfirmation, setPasswordConfirmation] = useState("");
     const [show, setShow] = useState(false);
-
     const [error, setError] = useState("");
 
+    // clerk sign up hook
     const { isLoaded, signUp, setActive } = useSignUp();
 
-
+    // email regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
     // verify email format
     const isEmailValid = email.length === 0 || emailRegex.test(email);
   
     const backgroundImageURL = "https://upcdn.io/kW15bg4/image/uploads/2024/01/07/4kuTEvpN7d-Untitled design (7).png";
 
+    // API call to handle signup using email, password, and username
+    // If a user with matching email or username is found, an error is displayed
     const handleSignUp = async (e: any) => {
         e.preventDefault();
         setError("");
@@ -69,17 +72,21 @@ export default function Page() {
           }
     }
 
+    // Verify that the password and password confirmation match
     const passwordMatch = password === passwordConfirmation;
 
+    // Password requirements
     const passwordRequirements = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
 
+    // Verify that the password meets the following requirements:
     const isPasswordValid = (password: string) => {
         return password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password);
     }
 
+    // Verify that the form is valid and can be submitted (disable the submit button if the form is invalid)
     const formValid = isEmailValid && isPasswordValid(password) && passwordMatch;
 
-
+    // Render the sign up form
     return (
         <div className="p-12 bg-purple-600 min-h-screen"
             style={{ backgroundImage: `url("${backgroundImageURL}")`, backgroundSize: 'cover', }}
@@ -137,12 +144,15 @@ export default function Page() {
                         passwordMatch ? null : <Text className="mt-2 text-red-600">Passwords do not match</Text>
                     }
                 </FormControl>
-                <Button className="w-full min-w-10" onClick={handleSignUp} isDisabled={!formValid}>
+                <Button colorScheme="brand" className="w-full min-w-10" onClick={handleSignUp} isDisabled={!formValid}>
                     Sign Up
                 </Button>
+                {
+                    error !== "" ? <Alert className="mt-4" status="error">{error}</Alert> : null
+                }
                 <div className="text-md px-12 text-center mt-4 font-medium">
                   Create Mini Courses, Bridges Pages & much more.&nbsp;
-                  <Link href="/sign-in" className="font-bold text-indigo-500 hover:underline">Already a member? Login here.</Link>
+                  <Link href="/sign-in" className="font-bold text-purple-600 hover:underline">Already a member? Login here.</Link>
                 </div>
               </div>
                 {/* <SignUp /> */}

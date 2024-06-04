@@ -4,15 +4,16 @@ import { Input, Button, FormControl, FormLabel, FormErrorMessage } from "@chakra
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSignIn } from "@clerk/nextjs";
-import { signin } from "../../../lib/utils";
 
 import "./signin.scss";
 
 export default function Page({ params }: { params: any }) {
     const backgroundImageURL = "https://upcdn.io/kW15bg4/image/uploads/2024/01/07/4kuTEvpN7d-Untitled design (7).png";
 
+    // Clerk hook to handle sign-in
     const router = useRouter();
     const { isLoaded, signIn, setActive } = useSignIn();
+    
     // Initialize the stage state with the first stage
     // Stage 1: Email
     // Stage 2: Password
@@ -40,13 +41,13 @@ export default function Page({ params }: { params: any }) {
         if (!isLoaded) {
             return;
         }
-        // Start the sign-in process using the email and password provided
+        // Start the sign-in process using the email provided
         try {
             const signInAttempt = await signIn.create({
               identifier: email,
             });
         
-            // If sign-in process is complete, set the created session as active
+            // If email is found, set the stage to password
             // and redirect the user
             if (signInAttempt.status === 'needs_first_factor') {
               setStage(2);
@@ -75,6 +76,7 @@ export default function Page({ params }: { params: any }) {
             return;
         }
         // Start the sign-in process using the email and password provided
+        // the function create provided by clerk contains password hashing using x-www-form-urlencoded
         try {
             const signInAttempt = await signIn.create({
               identifier: email,
@@ -102,6 +104,8 @@ export default function Page({ params }: { params: any }) {
 
     };
 
+    // API call to send signin link to email (after email is submitted and verified)
+    // If the email is correct, the user is sent a link to sign in
     const handleSendLink = async (e: any) => {
         e.preventDefault();
         setError("");
@@ -136,18 +140,20 @@ export default function Page({ params }: { params: any }) {
         }
     }
 
+    // Stage 1: Email
+    // User enters email to sign in
     const emailStage = (
         <div className="w-full flex flex-col items-center justify-center gap-4">
             <FormControl isRequired isInvalid={error !== ""}>
                 <FormLabel>Email address:</FormLabel>
-                <Input type="email" placeholder="Email..." value={email} onChange={(e) => {
+                <Input className="" type="email" placeholder="Email..." value={email} onChange={(e) => {
                     setEmail(e.target.value);
                 }} />
                 {
                     error !== "" ? <FormErrorMessage className="mt-2">{error}</FormErrorMessage> : null
                 }
             </FormControl>
-            <Button className="w-full min-w-10" onClick={handleEmailSubmit}
+            <Button className="w-full min-w-10" colorScheme="brand" onClick={handleEmailSubmit}
                 isDisabled={email === ""}
             >
                 Continue
@@ -163,7 +169,7 @@ export default function Page({ params }: { params: any }) {
                 <div className="text-xl text-center font-bold mb-4">
                     Get Started with ContentBlocks
                 </div>
-                <Button className="w-full min-w-10" onClick={(e) => {
+                <Button className="w-full min-w-10" colorScheme="brand" onClick={(e) => {
                     e.preventDefault();
                     router.push("/sign-up");
                 }}>
@@ -174,8 +180,24 @@ export default function Page({ params }: { params: any }) {
         </div>
     );
 
+    // Stage 2: Password
+    // User enters password to sign in (after email is verified)
+    // User can also request a login link to be sent to their email
     const passwordStage = (
         <div className="w-full flex flex-col items-center justify-center gap-4">
+            <div className="text-center">
+                <p className="font-thin">Signing in as {email}&nbsp;</p>
+                <p className="font-semibold">
+                    not you?&nbsp;
+                    <Button colorScheme="brand" variant={"link"} onClick={(e) => {
+                        e.preventDefault();
+                        setStage(1);
+                        setEmail("");
+                    }}>
+                        Sign in as a different user
+                    </Button>
+                </p>
+            </div>
             <FormControl isRequired isInvalid={error !== ""}>
                 <FormLabel>Password:</FormLabel>
                 <Input type="password" value={password} onChange={(e) => {
@@ -185,7 +207,7 @@ export default function Page({ params }: { params: any }) {
                     error !== "" ? <FormErrorMessage className="mt-2">{error}</FormErrorMessage> : null
                 }
             </FormControl>
-            <Button className="w-full min-w-10" onClick={handleSignin}>
+            <Button className="w-full min-w-10" onClick={handleSignin} colorScheme="brand" isDisabled={password === ""}>
                 Sign In
             </Button>
             <div className="w-full flex items-center justify-center border-t-2 border-gray-500 mt-12"
@@ -199,7 +221,7 @@ export default function Page({ params }: { params: any }) {
                 <div className="text-md px-12 text-center mt-4 font-medium">
                     Get a onetime login link sent to your email&nbsp;
                     <Button className="font-bold hover:underline"
-                        colorScheme="purple"
+                        colorScheme="brand"
                         variant="link"
                         onClick={handleSendLink}
                     >
@@ -211,6 +233,8 @@ export default function Page({ params }: { params: any }) {
         </div>
     );
 
+    // Stage 3: Login Link Sent
+    // User is informed that the login link has been sent to their email
     const linkSentStage = (
         <div className="w-full flex flex-col items-center justify-center gap-4">
             <div className="font-bold text-2xl">Login Link Sent to your email</div>
@@ -221,6 +245,8 @@ export default function Page({ params }: { params: any }) {
         </div>
     );
 
+
+    // Render the sign-in page based on the current stage
     return (
         <div className="p-12 bg-purple-600 min-h-screen"
             style={{ backgroundImage: `url("${backgroundImageURL}")`, backgroundSize: 'cover', }}
